@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_updater/data/services/current_version_service.dart';
@@ -38,9 +39,14 @@ class UpdateRepository {
     return false;
   }
 
+  String baseAdress;
+  UpdateRepository({
+    required this.baseAdress,
+  });
+
   Future<UpdaterModel> checkUpdates() async {
     final networkVersionService =
-        NetworkVersioniService(baseAddress: 'http://109.196.101.63:8000/api');
+        NetworkVersioniService(baseAddress: baseAdress);
     if (Platform.isAndroid) {
       UpdatesInfoModel updatesInfoModel =
           await networkVersionService.getAvailibleAndroidVersion();
@@ -90,4 +96,42 @@ class UpdateRepository {
         urlForUpdate: '',
         isAvailibleUpdate: true);
   }
+
+  UpdateRepository copyWith({
+    String? baseAdress,
+  }) {
+    return UpdateRepository(
+      baseAdress: baseAdress ?? this.baseAdress,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'baseAdress': baseAdress,
+    };
+  }
+
+  factory UpdateRepository.fromMap(Map<String, dynamic> map) {
+    return UpdateRepository(
+      baseAdress: map['baseAdress'] as String,
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory UpdateRepository.fromJson(String source) =>
+      UpdateRepository.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() => 'UpdateRepository(baseAdress: $baseAdress)';
+
+  @override
+  bool operator ==(covariant UpdateRepository other) {
+    if (identical(this, other)) return true;
+
+    return other.baseAdress == baseAdress;
+  }
+
+  @override
+  int get hashCode => baseAdress.hashCode;
 }
